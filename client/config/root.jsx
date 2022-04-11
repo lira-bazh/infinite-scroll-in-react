@@ -1,16 +1,16 @@
 import React from 'react'
+import PostList from '../components/PostList'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import "./root.scss"
 
 const Root = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<div>This is React Router v6!</div>} />
-        <Route path="/test" element={<div>This is TEST!</div>} />
-        <Route path="*" element={<h3>404</h3>} />
+        <Route path="/" element={<PostList />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
 export default Root

@@ -23,6 +23,7 @@
   "homepage": "https://github.com/lira-lantan/boilerplate#readme",
   "dependencies": {
     "add": "^2.0.6",
+    "axios": "^0.26.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
