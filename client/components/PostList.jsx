@@ -5,45 +5,49 @@ import "./PostList.scss";
 
 const PostList = () => {
   const [postsLoading, setPostsLoading] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState({data: [], page: 1});
   const portion = 20;
   const totalPages = Math.ceil(100 / portion);
-
-  console.log("render PostList", posts.length);
   const lastItem = createRef();
-  console.log(lastItem);
+  const observerLoader = useRef();
 
   const getNewPosts = () => {
     axios
       .get("https://jsonplaceholder.typicode.com/posts", {
         params: {
           _limit: portion,
-          _page: 1,
+          _page: posts.page,
         },
       })
       .then(({ data }) => {
-        setPosts([...posts, ...data]);
+        setPosts({ data: [...posts.data, ...data], page: posts.page + 1});
       });
   };
 
   useEffect(() => {
     getNewPosts();
-    // if (observerLoader.current) observerLoader.current.disconnect();
-
-    // const cb = (entries) => {
-    //   if (entries[0].isIntersecting && page < totalPages) {
-    //     getNewPosts();
-    //   }
-    // };
-
-    // observerLoader.current = new IntersectionObserver(cb);
-    // observerLoader.current.observe(loader.current);
   }, []);
+
+  useEffect(
+    () => {
+      if (observerLoader.current) observerLoader.current.disconnect();
+      const actionInSight = (entries) => {
+        if (entries[0].isIntersecting && posts.page <= totalPages) {
+          getNewPosts();
+        }
+      };
+      observerLoader.current = new IntersectionObserver(actionInSight);
+      if (lastItem.current) observerLoader.current.observe(lastItem.current);
+    },
+    [lastItem]
+  );
+
+
 
   return (
     <div className="post-list">
-      {posts.map((item, index) => {
-        if (index + 1 === posts.length) {
+      {posts.data.map((item, index) => {
+        if (index + 1 === posts.data.length) {
           return <PostItem key={item.id} info={item} ref={lastItem} />;
         }
         return <PostItem key={item.id} info={item} />;
