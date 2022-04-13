@@ -4,12 +4,9 @@ import PostItem from "./PostItem";
 import "./PostList.scss";
 
 const PostList = () => {
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [posts, setPosts] = useState({data: [], page: 1});
+  const [posts, setPosts] = useState({ data: [], page: 1 });
   const portion = 20;
   const totalPages = Math.ceil(100 / portion);
-  const lastItem = createRef();
-  const observerLoader = useRef();
 
   const getNewPosts = () => {
     axios
@@ -20,29 +17,32 @@ const PostList = () => {
         },
       })
       .then(({ data }) => {
-        setPosts({ data: [...posts.data, ...data], page: posts.page + 1});
+        setPosts({ data: [...posts.data, ...data], page: posts.page + 1 });
       });
   };
 
+
+  //загрузка самой первой порции данных
   useEffect(() => {
     getNewPosts();
   }, []);
 
-  useEffect(
-    () => {
-      if (observerLoader.current) observerLoader.current.disconnect();
-      const actionInSight = (entries) => {
-        if (entries[0].isIntersecting && posts.page <= totalPages) {
-          getNewPosts();
-        }
-      };
-      observerLoader.current = new IntersectionObserver(actionInSight);
-      if (lastItem.current) observerLoader.current.observe(lastItem.current);
-    },
-    [lastItem]
-  );
+  const lastItem = createRef();
+  const observerLoader = useRef();
 
+  const actionInSight = (entries) => {
+    if (entries[0].isIntersecting && posts.page <= totalPages) {
+      getNewPosts();
+    }
+  };
 
+  //вешаем на последний элемент наблюдателя, когда последний элемент меняется
+  useEffect(() => {
+    if (observerLoader.current) observerLoader.current.disconnect();
+
+    observerLoader.current = new IntersectionObserver(actionInSight);
+    if (lastItem.current) observerLoader.current.observe(lastItem.current);
+  }, [lastItem]);
 
   return (
     <div className="post-list">
